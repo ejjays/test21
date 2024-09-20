@@ -41,6 +41,22 @@ const hangupButton = document.getElementById('hangupButton');
 const videoIcon = document.getElementById('video-icon');
 const micIcon = document.getElementById('mic-icon'); // Add mic icon reference
 
+// New function to adjust video sizes
+function adjustVideoSizes() {
+    const localVideoBox = document.querySelector('#webcamVideo').parentElement; // Get the parent of the local video
+    const remoteVideoBox = document.querySelector('#remoteVideo').parentElement; // Get the parent of the remote video
+
+    if (remoteStream.getTracks().length > 0) {
+        // If remote stream is active, set both boxes to normal size
+        localVideoBox.classList.remove('full-size');
+        remoteVideoBox.classList.remove('full-size');
+    } else {
+        // If only local stream is active, make the local video box full size
+        localVideoBox.classList.add('full-size');
+        remoteVideoBox.classList.remove('full-size');
+    }
+}
+
 // 1. Setup media sources
 videoIcon.onclick = async () => {
     if (videoIcon.classList.contains('active')) {
@@ -61,6 +77,7 @@ videoIcon.onclick = async () => {
     pc.ontrack = (event) => {
         event.streams[0].getTracks().forEach((track) => {
             remoteStream.addTrack(track);
+            adjustVideoSizes(); // Adjust sizes when a track is added
         });
     };
 
@@ -70,6 +87,8 @@ videoIcon.onclick = async () => {
     callButton.disabled = false;
     answerButton.disabled = false;
     videoIcon.classList.add('active'); // Mark the video icon as active
+
+    adjustVideoSizes(); // Initial adjustment
 };
 
 // Toggle mic icon
@@ -169,5 +188,7 @@ answerButton.onclick = async () => {
         pc.addIceCandidate(new RTCIceCandidate(data));
       }
     });
-  }); 
+  });
+
+  adjustVideoSizes(); // Adjust sizes after answering the call
 };
