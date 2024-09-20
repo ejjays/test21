@@ -39,10 +39,76 @@ const remoteVideo = document.getElementById('remoteVideo');
 const hangupButton = document.getElementById('hangupButton');
 const videoIcon = document.getElementById('video-icon');
 const micIcon = document.getElementById('mic-icon');
-const screenShareIcon = document.getElementById('screen-share-icon'); // New screen share icon
-let isVideoOn = false;
-let isScreenSharing = false; // New variable to track screen sharing status
+const screenShareIcon = document.getElementById('screen-share-icon');
+const settingsIcon = document.getElementById('settings-icon');
+const settingsPanel = document.getElementById('settings-panel');
+const backButton = document.getElementById('back-button');
 
+let isVideoOn = false;
+let isScreenSharing = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Event listeners for controls
+    settingsIcon.addEventListener('click', () => {
+        settingsPanel.classList.toggle('open');
+    });
+
+    backButton.addEventListener('click', () => {
+        settingsPanel.classList.remove('open');
+    });
+
+    videoIcon.onclick = async () => {
+        const localVideo = document.getElementById('webcamVideo');
+        if (isVideoOn) {
+            localStream.getVideoTracks().forEach(track => track.stop());
+            localVideo.classList.add('hidden');
+            videoIcon.classList.remove('active', 'fa-video');
+            videoIcon.classList.add('fa-video-slash');
+            isVideoOn = false;
+        } else {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+            localVideo.srcObject = localStream;
+            localVideo.classList.remove('hidden');
+            videoIcon.classList.add('active', 'fa-video');
+            videoIcon.classList.remove('fa-video-slash');
+            isVideoOn = true;
+
+            callButton.disabled = false;
+        }
+
+        adjustVideoSizes();
+    };
+
+    micIcon.onclick = () => {
+        if (!localStream) {
+            console.error("Local stream is not initialized. Make sure to start the stream first.");
+            return;
+        }
+
+        const audioTracks = localStream.getAudioTracks();
+        micIcon.classList.toggle('active');
+        if (micIcon.classList.contains('active')) {
+            micIcon.classList.remove('fa-microphone');
+            micIcon.classList.add('fa-microphone-slash');
+            audioTracks.forEach(track => track.enabled = false);
+        } else {
+            micIcon.classList.remove('fa-microphone-slash');
+            micIcon.classList.add('fa-microphone');
+            audioTracks.forEach(track => track.enabled = true);
+        }
+    };
+
+    screenShareIcon.onclick = () => {
+        if (!isScreenSharing) {
+            startScreenShare();
+        } else {
+            stopScreenShare();
+        }
+    };
+});
+
+// Adjust video sizes based on remote stream presence
 function adjustVideoSizes() {
     const localVideoBox = document.querySelector('#localVideoBox');
     const remoteVideoBox = document.querySelector('#remoteVideoBox');
@@ -58,95 +124,31 @@ function adjustVideoSizes() {
     }
 }
 
-// Toggle settings panel
-settingsIcon.addEventListener('click', () => {
-    settingsPanel.classList.toggle('open');
-});
-
-backButton.addEventListener('click', () => {
-    settingsPanel.classList.remove('open');
-});
-
-videoIcon.onclick = async () => {
-    const localVideo = document.getElementById('webcamVideo');
-    if (isVideoOn) {
-        localStream.getVideoTracks().forEach(track => track.stop());
-        localVideo.classList.add('hidden');
-        videoIcon.classList.remove('active');
-        videoIcon.classList.remove('fa-video');
-        videoIcon.classList.add('fa-video-slash');
-        isVideoOn = false;
-    } else {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-        localVideo.srcObject = localStream;
-        localVideo.classList.remove('hidden');
-        videoIcon.classList.add('active');
-        videoIcon.classList.remove('fa-video-slash');
-        videoIcon.classList.add('fa-video');
-        isVideoOn = true;
-
-        callButton.disabled = false;
-    }
-
-    adjustVideoSizes();
-};
-
-micIcon.onclick = () => {
-    if (!localStream) {
-        console.error("Local stream is not initialized. Make sure to start the stream first.");
-        return;
-    }
-
-    const audioTracks = localStream.getAudioTracks();
-    micIcon.classList.toggle('active');
-    if (micIcon.classList.contains('active')) {
-        micIcon.classList.remove('fa-microphone');
-        micIcon.classList.add('fa-microphone-slash');
-        audioTracks.forEach(track => track.enabled = false);
-    } else {
-        micIcon.classList.remove('fa-microphone-slash');
-        micIcon.classList.add('fa-microphone');
-        audioTracks.forEach(track => track.enabled = true);
-    }
-};
-
-// Function to start screen sharing
+// Screen sharing functions
 async function startScreenShare() {
     try {
         const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
         screenStream.getTracks().forEach(track => {
-            // Replace the video track in the local stream
             localStream.getVideoTracks().forEach(videoTrack => pc.removeTrack(pc.getSenders().find(s => s.track === videoTrack)));
             pc.addTrack(track, screenStream);
         });
-        webcamVideo.srcObject = screenStream; // Show screen share in local video box
+        webcamVideo.srcObject = screenStream; 
         isScreenSharing = true;
         screenShareIcon.classList.add('active');
         screenShareIcon.classList.remove('fa-desktop');
-        screenShareIcon.classList.add('fa-stop-circle'); // Change icon to indicate sharing is active
+        screenShareIcon.classList.add('fa-stop-circle');
     } catch (error) {
         console.error("Error starting screen share:", error);
     }
 }
 
-// Function to stop screen sharing
 function stopScreenShare() {
     isScreenSharing = false;
     screenShareIcon.classList.remove('active');
     screenShareIcon.classList.remove('fa-stop-circle');
-    screenShareIcon.classList.add('fa-desktop'); // Change icon back to desktop
-    webcamVideo.srcObject = localStream; // Show the original local video stream
+    screenShareIcon.classList.add('fa-desktop');
+    webcamVideo.srcObject = localStream; 
 }
-
-// Add event listener for the screen share icon
-screenShareIcon.onclick = () => {
-    if (!isScreenSharing) {
-        startScreenShare();
-    } else {
-        stopScreenShare();
-    }
-};
 
 // Create an offer
 callButton.onclick = async () => {
@@ -154,8 +156,8 @@ callButton.onclick = async () => {
     const offerCandidates = callDoc.collection('offerCandidates');
     const answerCandidates = callDoc.collection('answerCandidates');
 
-    callInput.value = callDoc.id; // Set the call ID for the input field
-    answerButton.disabled = false; // Enable the Answer button
+    callInput.value = callDoc.id; 
+    answerButton.disabled = false; 
 
     pc.onicecandidate = (event) => {
         event.candidate && offerCandidates.add(event.candidate.toJSON());
@@ -171,7 +173,6 @@ callButton.onclick = async () => {
 
     await callDoc.set({ offer });
 
-    // Listen for updates to the call document
     callDoc.onSnapshot((snapshot) => {
         const data = snapshot.data();
         if (!pc.currentRemoteDescription && data?.answer) {
@@ -202,7 +203,7 @@ callButton.onclick = async () => {
 // Answer the call with the unique ID
 answerButton.onclick = async () => {
     try {
-        const callId = callInput.value; // Get the call ID from input
+        const callId = callInput.value; 
         const callDoc = firestore.collection('calls').doc(callId);
         const answerCandidates = callDoc.collection('answerCandidates');
         const offerCandidates = callDoc.collection('offerCandidates');
@@ -250,41 +251,35 @@ answerButton.onclick = async () => {
 
 // Hang up the call
 hangupButton.onclick = async () => {
-    // Stop all local media tracks
     localStream.getTracks().forEach(track => track.stop());
-    localStream = null; // Reset local stream
+    localStream = null; 
 
-    // Close the peer connection
     pc.close();
 
-    // Update Firestore to indicate the user has hung up
-    const callId = callInput.value; // Get the call ID
+    const callId = callInput.value; 
     const callDoc = firestore.collection('calls').doc(callId);
-    await callDoc.update({ remoteUserDisconnected: true }); // Indicate remote user has disconnected
+    await callDoc.update({ remoteUserDisconnected: true }); 
 
-    // Reset UI elements for local user
-    remoteVideo.srcObject = null; // Clear remote video
-    document.getElementById('localVideoBox').classList.add('full-size'); // Set local video box to full size
-    document.getElementById('remoteVideoBox').classList.add('hidden'); // Hide remote video box
+    remoteVideo.srcObject = null; 
+    document.getElementById('localVideoBox').classList.add('full-size');
+    document.getElementById('remoteVideoBox').classList.add('hidden'); 
 
-    // Disable buttons
     hangupButton.disabled = true;
-    callButton.disabled = false; // Enable call button for new call
-    answerButton.disabled = true; // Disable answer button
+    callButton.disabled = false; 
+    answerButton.disabled = true; 
 };
 
-// Listen for changes in the call document to manage remote user disconnection
+// Listen for remote user disconnection
 const callDoc = firestore.collection('calls').doc(callInput.value);
 callDoc.onSnapshot((snapshot) => {
     const data = snapshot.data();
     if (data?.remoteUserDisconnected) {
-        // Remote user has disconnected
-        remoteVideo.srcObject = null; // Clear remote video
-        document.getElementById('localVideoBox').classList.add('full-size'); // Set local video box to full size
-        document.getElementById('remoteVideoBox').classList.add('hidden'); // Hide remote video box
-        hangupButton.disabled = true; // Disable hangup button
-        callButton.disabled = false; // Enable call button for new call
-        answerButton.disabled = true; // Disable answer button
+        remoteVideo.srcObject = null; 
+        document.getElementById('localVideoBox').classList.add('full-size'); 
+        document.getElementById('remoteVideoBox').classList.add('hidden'); 
+        hangupButton.disabled = true; 
+        callButton.disabled = false; 
+        answerButton.disabled = true; 
     }
 });
 
@@ -296,5 +291,5 @@ pc.ontrack = (event) => {
 
     remoteStream.addTrack(event.track);
     document.getElementById('remoteVideo').srcObject = remoteStream;
-    adjustVideoSizes(); // Ensure UI is updated immediately
+    adjustVideoSizes(); 
 };
