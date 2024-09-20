@@ -32,7 +32,7 @@ micIcon.addEventListener('click', () => {
         audioTracks.forEach(track => track.enabled = true);
     }
 });
-
+ 
 // Toggle video icon
 videoIcon.addEventListener('click', () => {
     videoIcon.classList.toggle('active'); // Toggles the active class
