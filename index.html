@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Video Call App</title>
+    <title>Video Call UI with Settings Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="./styles.css" />
+    <link rel="stylesheet" type="text/css" href="./style.css" />
 </head>
 <body>
 
 <div class="video-call-container">
     <div class="video-section">
-        <div class="video-box" id="localVideoBox">
+        <div class="video-box">
             <div class="username">Local Stream <i class="fa fa-microphone-slash" id="mic-icon-2"></i></div>
-            <video id="webcamVideo" autoplay muted></video>
+            <video id="webcamVideo" autoplay muted></video> <!-- Your own video -->
         </div>
-        <div class="video-box" id="remoteVideoBox">
-            <div class="username">Remote Stream <i class="fa fa-microphone" id="mic-icon"></i></div>
-            <video id="remoteVideo" autoplay></video>
+        <div class="video-box">
+            <div class="username">Remote stream <i class="fa fa-microphone" id="mic-icon"></i></div>
+            <video id="remoteVideo" autoplay></video> <!-- Placeholder for User 2 -->
         </div>
     </div>
     <div class="controls">
@@ -25,13 +25,11 @@
         <i class="fa fa-video" id="video-icon"></i>
         <i class="fa fa-users"></i>
         <i class="fa fa-cog" id="settings-icon"></i>
-        <i class="fa fa-comments" id="chat-icon"></i>
-        <i class="fa fa-desktop" id="screen-share-icon"></i>
     </div>
 </div>
 
 <div class="settings-panel" id="settings-panel">
-    <button class="back-button" id="back-button">Back</button>
+    <button class="back-button" id="back-button">Back</button> <br>
     <button id="callButton" disabled>Create Call (offer)</button>
     
     <h2>Answer</h2>
@@ -39,18 +37,10 @@
     <button id="answerButton" disabled>Answer</button>
 </div>
 
-<div class="chat-panel" id="chat-panel">
-    <button class="back-button" id="chat-back-button">Back</button>
-    <div id="chatMessages"></div>
-    <input id="chatInput" placeholder="Type a message..." />
-    <button id="sendChatButton">Send</button>
-</div>
-
 <button id="hangupButton" disabled>Hangup</button>
 
 <script type="module" src="/main.js"></script>
-<script type="module" src="/settingsPanel.js"></script>
-<script type="module" src="/chat.js"></script>
+<script type="module" src="/settingpannel.js"></script>
 
 </body>
 </html>
