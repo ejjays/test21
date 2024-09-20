@@ -70,8 +70,8 @@ videoIcon.onclick = async () => {
 
 // Toggle mic icon
 micIcon.onclick = () => {
+    const audioTracks = localStream ? localStream.getAudioTracks() : [];
     micIcon.classList.toggle('active'); // Toggles the active class
-    const audioTracks = localStream.getAudioTracks();
     if (micIcon.classList.contains('active')) {
         micIcon.classList.remove('fa-microphone'); // Change to muted icon
         micIcon.classList.add('fa-microphone-slash');
@@ -84,7 +84,7 @@ micIcon.onclick = () => {
         audioTracks.forEach(track => track.enabled = true);
     }
 };
-  
+
 // 2. Create an offer
 callButton.onclick = async () => {
   const callDoc = firestore.collection('calls').doc();
