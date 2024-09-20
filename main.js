@@ -88,7 +88,7 @@ micIcon.onclick = () => {
         // Unmute audio
         audioTracks.forEach(track => track.enabled = true);
     }
-};
+}; 
 
 // 2. Create an offer
 callButton.onclick = async () => {
