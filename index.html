@@ -11,18 +11,17 @@
 
 <div class="video-call-container">
     <div class="video-section">
-        <div class="video-box">
-            <div class="username">Local Stream  <i class="fa fa-microphone-slash" id="mic-icon-1"></i> </div>
-            <video id="webcamVideo" autoplay muted></video> <!-- Your own video -->
+        <div class="video-box" id="localVideoBox">
+            <div class="username">Local Stream </div>
+            <video id="webcamVideo" autoplay muted></video>
         </div>
-        <div class="video-box">
-            <div class="username">Remote stream  <i class="fa fa-microphone-slash" id="mic-icon-2"></i> </div>
-            <video id="remoteVideo" autoplay></video> <!-- Placeholder for User 2 -->
+        <div class="video-box" id="remoteVideoBox">
+            <div class="username">Remote Stream </div>
+            <video id="remoteVideo" autoplay></video>
         </div>
     </div>
     <div class="controls">
         <i class="fa fa-microphone" id="mic-icon"></i>
-       
         <i class="fa fa-video" id="video-icon"></i>
         <i class="fa fa-users"></i>
         <i class="fa fa-cog" id="settings-icon"></i>
@@ -36,7 +35,7 @@
     <h2>Answer</h2>
     <input id="callInput" placeholder="Enter Call ID" />
     <button id="answerButton" disabled>Answer</button>
-    <button id="hangupButton" disabled>Hangup</button> <!-- Moved here -->
+    <button id="hangupButton" disabled>Hangup</button>
 </div>
 
 <script type="module" src="/main.js"></script>
