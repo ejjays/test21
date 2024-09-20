@@ -73,6 +73,9 @@ videoIcon.onclick = async () => {
         videoIcon.classList.remove('fa-video-slash');
         videoIcon.classList.add('fa-video');
         isVideoOn = true; // Video is on
+
+        // Enable the call button once the local stream is active
+        callButton.disabled = false;
     }
     adjustVideoSizes(); // Adjust sizes after toggling video
 };
