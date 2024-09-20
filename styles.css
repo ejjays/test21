@@ -32,6 +32,11 @@ body {
     border: 2px solid #666;
     border-radius: 5px;
     overflow: hidden;
+    transition: height 0.3s ease; /* Smooth transition for height change */
+}
+
+.video-box.full-size {
+    height: 90%; /* Full height when only one participant is present */
 }
 
 .username {
@@ -64,6 +69,12 @@ video {
     font-size: 24px;
     margin: 0 15px;
     cursor: pointer;
+}
+
+.controls span {
+    color: white; /* Change the text color */
+    margin-left: 5px; /* Add some space between the icon and the label */
+    font-size: 16px; /* Adjust the font size as needed */
 }
 
 .active {
