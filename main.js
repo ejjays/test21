@@ -43,8 +43,31 @@ const micIcon = document.getElementById('mic-icon');
 const micIcon2 = document.getElementById('mic-icon-2');
 const screenShareIcon = document.getElementById('screen-share-icon');
 
+// Request permissions for camera, audio, and screen sharing
+const requestPermissions = async () => {
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        webcamVideo.srcObject = localStream;
+
+        // Automatically enable the video icon after permissions are granted
+        videoIcon.disabled = false;
+
+    } catch (error) {
+        console.error("Error accessing media devices.", error);
+        alert("Could not access camera and microphone. Please check your permissions.");
+    }
+};
+
+// Automatically request permissions when the page loads
+window.onload = requestPermissions;
+
 // Setup media sources when video icon is clicked
 videoIcon.onclick = async () => {
+    if (localStream) {
+        // No need to request permissions again
+        return;
+    }
+
     try {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         remoteStream = new MediaStream();
