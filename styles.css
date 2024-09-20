@@ -24,7 +24,7 @@ body {
 
 .video-box {
     background-color: #444;
-    width: 80%;
+    width: 80%; /* Default width */
     max-width: 600px;
     height: 45%;
     margin: 10px 0;
@@ -32,7 +32,7 @@ body {
     border: 2px solid #666;
     border-radius: 5px;
     overflow: hidden;
-    transition: height 0.3s ease; /* Smooth transition for height change */
+    transition: height 0.3s ease, width 0.3s ease; /* Smooth transition for height and width change */
 }
 
 .video-box.hidden {
@@ -41,6 +41,11 @@ body {
 
 .video-box.full-size {
     height: 90%; /* Full height when only one participant is present */
+    width: 90%; /* Wider width when local stream is alone */
+}
+
+.video-box.remote-size {
+    width: 0; /* Hide width for the remote stream */
 }
 
 .username {
