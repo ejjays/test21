@@ -45,7 +45,8 @@ function adjustVideoSizes() {
     const localVideoBox = document.querySelector('#localVideoBox');
     const remoteVideoBox = document.querySelector('#remoteVideoBox');
 
-    if (remoteStream.getTracks().length > 0) {
+    // Check if remote stream is active
+    if (remoteStream && remoteStream.getTracks().length > 0) {
         localVideoBox.classList.remove('full-size');
         remoteVideoBox.classList.remove('hidden');
         remoteVideoBox.classList.remove('remote-size');
@@ -94,7 +95,8 @@ micIcon.onclick = () => {
         audioTracks.forEach(track => track.enabled = true);
     }
 };
-// 2. Create an offer
+
+// Create an offer
 callButton.onclick = async () => {
     const callDoc = firestore.collection('calls').doc();
     const offerCandidates = callDoc.collection('offerCandidates');
@@ -137,7 +139,7 @@ callButton.onclick = async () => {
     hangupButton.disabled = false;
 };
 
-// 3. Answer the call with the unique ID
+// Answer the call with the unique ID
 answerButton.onclick = async () => {
     const callId = callInput.value; // Get the call ID from input
     const callDoc = firestore.collection('calls').doc(callId);
@@ -173,4 +175,14 @@ answerButton.onclick = async () => {
     });
 
     adjustVideoSizes(); // Adjust sizes after answering the call
+};
+
+// Handle remote track addition
+pc.ontrack = (event) => {
+    if (!remoteStream) {
+        remoteStream = new MediaStream();
+    }
+    remoteStream.addTrack(event.track);
+    document.getElementById('remoteVideo').srcObject = remoteStream;
+    adjustVideoSizes(); // Adjust sizes when a remote track is added
 };
