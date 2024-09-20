@@ -40,8 +40,8 @@ body {
 }
 
 .video-box.full-size {
-    height: 90%; /* Full height when only one participant is present */
-    width: 90%; /* Wider width when local stream is alone */
+    height: 92%; /* Full height when only one participant is present */
+    width: 95%; /* Wider width when local stream is alone */
 }
 
 .video-box.remote-size {
