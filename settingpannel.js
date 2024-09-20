@@ -3,9 +3,8 @@ const settingsPanel = document.getElementById('settings-panel');
 const backButton = document.getElementById('back-button');
 const micIcon = document.getElementById('mic-icon');
 const videoIcon = document.getElementById('video-icon');
-const user1Video = document.getElementById('user1-video'); // Your video
-const user2Video = document.getElementById('user2-video'); // Placeholder for User 2
-
+const user1Video = document.getElementById('webcamVideo'); // Your video
+const user2Video = document.getElementById('remoteVideo'); // Placeholder for User 2
 
 // UI and control logic
 settingsIcon.addEventListener('click', () => {
@@ -22,9 +21,15 @@ micIcon.addEventListener('click', () => {
     if (micIcon.classList.contains('active')) {
         micIcon.classList.remove('fa-microphone'); // Change to muted icon
         micIcon.classList.add('fa-microphone-slash');
+        // Optionally mute the audio track
+        const audioTracks = localStream.getAudioTracks();
+        audioTracks.forEach(track => track.enabled = false);
     } else {
         micIcon.classList.remove('fa-microphone-slash'); // Change back to unmuted icon
         micIcon.classList.add('fa-microphone');
+        // Optionally unmute the audio track
+        const audioTracks = localStream.getAudioTracks();
+        audioTracks.forEach(track => track.enabled = true);
     }
 });
 
