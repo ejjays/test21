@@ -32,16 +32,16 @@ let localStream = null;
 let remoteStream = null;
 
 // HTML elements
-const webcamButton = document.getElementById('webcamButton');
 const webcamVideo = document.getElementById('webcamVideo');
 const callButton = document.getElementById('callButton');
 const callInput = document.getElementById('callInput');
 const answerButton = document.getElementById('answerButton');
 const remoteVideo = document.getElementById('remoteVideo');
 const hangupButton = document.getElementById('hangupButton');
+const videoIcon = document.getElementById('video-icon');
 
-// Setup media sources
-webcamButton.onclick = async () => {
+// Setup media sources when video icon is clicked
+videoIcon.onclick = async () => {
     try {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         remoteStream = new MediaStream();
@@ -61,7 +61,7 @@ webcamButton.onclick = async () => {
 
         callButton.disabled = false;
         answerButton.disabled = false;
-        webcamButton.disabled = true;
+        videoIcon.disabled = true; // Disable video icon after starting webcam
     } catch (error) {
         console.error("Error accessing media devices.", error);
         alert("Could not access camera and microphone. Please check your permissions.");
