@@ -193,7 +193,7 @@ answerButton.onclick = async () => {
 };
 
 // Hang up the call
-hangupButton.onclick = () => {
+hangupButton.onclick = async () => {
     // Stop all local media tracks
     localStream.getTracks().forEach(track => track.stop());
     localStream = null; // Reset local stream
@@ -201,9 +201,14 @@ hangupButton.onclick = () => {
     // Close the peer connection
     pc.close();
 
-    // Reset UI elements
+    // Update Firestore to indicate the user has hung up
+    const callId = callInput.value; // Get the call ID
+    const callDoc = firestore.collection('calls').doc(callId);
+    await callDoc.update({ remoteUserDisconnected: true }); // Indicate remote user has disconnected
+
+    // Reset UI elements for local user
     remoteVideo.srcObject = null; // Clear remote video
-    document.getElementById('localVideoBox').classList.add('full-size'); // Reset local video box size
+    document.getElementById('localVideoBox').classList.add('full-size'); // Set local video box to full size
     document.getElementById('remoteVideoBox').classList.add('hidden'); // Hide remote video box
 
     // Disable buttons
@@ -211,6 +216,21 @@ hangupButton.onclick = () => {
     callButton.disabled = false; // Enable call button for new call
     answerButton.disabled = true; // Disable answer button
 };
+
+// Listen for changes in the call document to manage remote user disconnection
+const callDoc = firestore.collection('calls').doc(callInput.value);
+callDoc.onSnapshot((snapshot) => {
+    const data = snapshot.data();
+    if (data?.remoteUserDisconnected) {
+        // Remote user has disconnected
+        remoteVideo.srcObject = null; // Clear remote video
+        document.getElementById('localVideoBox').classList.add('full-size'); // Set local video box to full size
+        document.getElementById('remoteVideoBox').classList.add('hidden'); // Hide remote video box
+        hangupButton.disabled = true; // Disable hangup button
+        callButton.disabled = false; // Enable call button for new call
+        answerButton.disabled = true; // Disable answer button
+    }
+});
 
 // Handle remote track addition
 pc.ontrack = (event) => {
