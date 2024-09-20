@@ -160,5 +160,5 @@ answerButton.onclick = async () => {
         pc.addIceCandidate(new RTCIceCandidate(data));
       }
     });
-  });
+  }); 
 };
