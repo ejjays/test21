@@ -84,7 +84,7 @@ micIcon.onclick = () => {
     audioTracks.forEach(track => track.enabled = true);
   }
 };
-
+  
 // 2. Create an offer
 callButton.onclick = async () => {
   const callDoc = firestore.collection('calls').doc();
