@@ -58,9 +58,10 @@ function adjustVideoSizes() {
 }
 
 videoIcon.onclick = async () => {
+    const localVideo = document.getElementById('webcamVideo');
     if (isVideoOn) {
         localStream.getVideoTracks().forEach(track => track.stop());
-        webcamVideo.srcObject = null;
+        localVideo.classList.add('hidden'); // Apply hidden class for transition
         videoIcon.classList.remove('active');
         videoIcon.classList.remove('fa-video');
         videoIcon.classList.add('fa-video-slash');
@@ -68,7 +69,8 @@ videoIcon.onclick = async () => {
     } else {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-        webcamVideo.srcObject = localStream;
+        localVideo.srcObject = localStream;
+        localVideo.classList.remove('hidden'); // Remove hidden class for transition
         videoIcon.classList.add('active');
         videoIcon.classList.remove('fa-video-slash');
         videoIcon.classList.add('fa-video');
