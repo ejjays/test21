@@ -33,7 +33,7 @@ body {
     border-radius: 5px;
     overflow: hidden;
     transition: height 0.3s ease, width 0.3s ease;
-    background-image: url('path_to_default_profile_icon.png'); /* Placeholder for profile icon */
+    background-image: url('https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg'); /* Placeholder for profile icon */
     background-size: cover;
     background-position: center;
 }
