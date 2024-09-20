@@ -39,13 +39,9 @@ const remoteVideo = document.getElementById('remoteVideo');
 const hangupButton = document.getElementById('hangupButton');
 const videoIcon = document.getElementById('video-icon');
 const micIcon = document.getElementById('mic-icon');
-
-// Side panel elements
-const settingsIcon = document.getElementById('settings-icon');
-const settingsPanel = document.getElementById('settings-panel');
-const backButton = document.getElementById('back-button');
-
+const screenShareIcon = document.getElementById('screen-share-icon'); // New screen share icon
 let isVideoOn = false;
+let isScreenSharing = false; // New variable to track screen sharing status
 
 function adjustVideoSizes() {
     const localVideoBox = document.querySelector('#localVideoBox');
@@ -112,6 +108,43 @@ micIcon.onclick = () => {
         micIcon.classList.remove('fa-microphone-slash');
         micIcon.classList.add('fa-microphone');
         audioTracks.forEach(track => track.enabled = true);
+    }
+};
+
+// Function to start screen sharing
+async function startScreenShare() {
+    try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        screenStream.getTracks().forEach(track => {
+            // Replace the video track in the local stream
+            localStream.getVideoTracks().forEach(videoTrack => pc.removeTrack(pc.getSenders().find(s => s.track === videoTrack)));
+            pc.addTrack(track, screenStream);
+        });
+        webcamVideo.srcObject = screenStream; // Show screen share in local video box
+        isScreenSharing = true;
+        screenShareIcon.classList.add('active');
+        screenShareIcon.classList.remove('fa-desktop');
+        screenShareIcon.classList.add('fa-stop-circle'); // Change icon to indicate sharing is active
+    } catch (error) {
+        console.error("Error starting screen share:", error);
+    }
+}
+
+// Function to stop screen sharing
+function stopScreenShare() {
+    isScreenSharing = false;
+    screenShareIcon.classList.remove('active');
+    screenShareIcon.classList.remove('fa-stop-circle');
+    screenShareIcon.classList.add('fa-desktop'); // Change icon back to desktop
+    webcamVideo.srcObject = localStream; // Show the original local video stream
+}
+
+// Add event listener for the screen share icon
+screenShareIcon.onclick = () => {
+    if (!isScreenSharing) {
+        startScreenShare();
+    } else {
+        stopScreenShare();
     }
 };
 
