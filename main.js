@@ -33,12 +33,15 @@ let remoteStream = null;
 
 // HTML elements
 const webcamVideo = document.getElementById('webcamVideo');
+const remoteVideo = document.getElementById('remoteVideo');
 const callButton = document.getElementById('callButton');
 const callInput = document.getElementById('callInput');
 const answerButton = document.getElementById('answerButton');
-const remoteVideo = document.getElementById('remoteVideo');
 const hangupButton = document.getElementById('hangupButton');
 const videoIcon = document.getElementById('video-icon');
+const micIcon = document.getElementById('mic-icon');
+const micIcon2 = document.getElementById('mic-icon-2');
+const screenShareIcon = document.getElementById('screen-share-icon');
 
 // Setup media sources when video icon is clicked
 videoIcon.onclick = async () => {
@@ -65,6 +68,48 @@ videoIcon.onclick = async () => {
     } catch (error) {
         console.error("Error accessing media devices.", error);
         alert("Could not access camera and microphone. Please check your permissions.");
+    }
+};
+
+// Mute/Unmute functionality
+let isMuted = false;
+
+micIcon.onclick = () => {
+    isMuted = !isMuted;
+    localStream.getAudioTracks()[0].enabled = !isMuted;
+
+    if (isMuted) {
+        micIcon.classList.remove('fa-microphone');
+        micIcon.classList.add('fa-microphone-slash');
+        micIcon2.classList.remove('fa-microphone');
+        micIcon2.classList.add('fa-microphone-slash');
+    } else {
+        micIcon.classList.remove('fa-microphone-slash');
+        micIcon.classList.add('fa-microphone');
+        micIcon2.classList.remove('fa-microphone-slash');
+        micIcon2.classList.add('fa-microphone');
+    }
+};
+
+// Screen share functionality
+screenShareIcon.onclick = async () => {
+    try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        screenStream.getTracks().forEach((track) => {
+            pc.addTrack(track, screenStream);
+        });
+
+        const remoteStream = new MediaStream();
+        pc.ontrack = (event) => {
+            event.streams[0].getTracks().forEach((track) => {
+                remoteStream.addTrack(track);
+            });
+        };
+        
+        remoteVideo.srcObject = remoteStream;
+    } catch (error) {
+        console.error("Error accessing screen sharing.", error);
+        alert("Could not access screen sharing. Please check your permissions.");
     }
 };
 
