@@ -50,11 +50,12 @@ function adjustVideoSizes() {
         // If remote stream is active, show both boxes and set to normal size
         localVideoBox.classList.remove('full-size');
         remoteVideoBox.classList.remove('hidden');
-        remoteVideoBox.classList.remove('full-size');
+        remoteVideoBox.classList.remove('remote-size');
     } else {
         // If only local stream is active, hide the remote video box and make local video box full size
         localVideoBox.classList.add('full-size');
         remoteVideoBox.classList.add('hidden');
+        remoteVideoBox.classList.add('remote-size'); // Add remote-size class to hide width
     }
 }
 
