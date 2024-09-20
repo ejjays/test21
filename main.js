@@ -192,6 +192,26 @@ answerButton.onclick = async () => {
     }
 };
 
+// Hang up the call
+hangupButton.onclick = () => {
+    // Stop all local media tracks
+    localStream.getTracks().forEach(track => track.stop());
+    localStream = null; // Reset local stream
+
+    // Close the peer connection
+    pc.close();
+
+    // Reset UI elements
+    remoteVideo.srcObject = null; // Clear remote video
+    document.getElementById('localVideoBox').classList.add('full-size'); // Reset local video box size
+    document.getElementById('remoteVideoBox').classList.add('hidden'); // Hide remote video box
+
+    // Disable buttons
+    hangupButton.disabled = true;
+    callButton.disabled = false; // Enable call button for new call
+    answerButton.disabled = true; // Disable answer button
+};
+
 // Handle remote track addition
 pc.ontrack = (event) => {
     if (!remoteStream) {
