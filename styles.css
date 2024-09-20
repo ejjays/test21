@@ -35,6 +35,10 @@ body {
     transition: height 0.3s ease; /* Smooth transition for height change */
 }
 
+.video-box.hidden {
+    display: none; /* Hide the remote video box when there is no participant */
+}
+
 .video-box.full-size {
     height: 90%; /* Full height when only one participant is present */
 }
