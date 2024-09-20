@@ -1,7 +1,9 @@
 import './styles.css';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
+import { startScreenShare, stopScreenShare, setLocalStream, initPeerConnection } from './screenshare.js';
 
+// Firebase configuration and initialization
 const firebaseConfig = {
     apiKey: "AIzaSyB4BpQYfuGgom3VlUJONNR92weDC5BMJf0",
     authDomain: "fir-rtc-68de1.firebaseapp.com",
@@ -28,8 +30,7 @@ const servers = {
 };
 
 const pc = new RTCPeerConnection(servers);
-let localStream = null;
-let remoteStream = null;
+let localStream = null; // Local stream variable
 
 const webcamVideo = document.getElementById('webcamVideo');
 const callButton = document.getElementById('callButton');
@@ -39,13 +40,17 @@ const remoteVideo = document.getElementById('remoteVideo');
 const hangupButton = document.getElementById('hangupButton');
 const videoIcon = document.getElementById('video-icon');
 const micIcon = document.getElementById('mic-icon');
-const screenShareIcon = document.getElementById('screen-share-icon');
 const settingsIcon = document.getElementById('settings-icon');
 const settingsPanel = document.getElementById('settings-panel');
 const backButton = document.getElementById('back-button');
 
+// Initialize peer connection in screenshare.js
+initPeerConnection(pc);
+
+// Set the local stream whenever it's initialized
+setLocalStream(localStream);
+
 let isVideoOn = false;
-let isScreenSharing = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     // Event listeners for controls
@@ -77,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             callButton.disabled = false;
         }
 
+        setLocalStream(localStream); // Update the local stream in screenshare.js
         adjustVideoSizes();
     };
 
@@ -98,14 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
             audioTracks.forEach(track => track.enabled = true);
         }
     };
-
-    screenShareIcon.onclick = () => {
-        if (!isScreenSharing) {
-            startScreenShare();
-        } else {
-            stopScreenShare();
-        }
-    };
 });
 
 // Adjust video sizes based on remote stream presence
@@ -122,33 +120,6 @@ function adjustVideoSizes() {
         remoteVideoBox.classList.add('hidden');
         remoteVideoBox.classList.add('remote-size');
     }
-}
-
-// Screen sharing functions
-async function startScreenShare() {
-    try {
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-        screenStream.getTracks().forEach(track => {
-            localStream.getVideoTracks().forEach(videoTrack => pc.removeTrack(pc.getSenders().find(s => s.track === videoTrack)));
-            pc.addTrack(track, screenStream);
-        });
-        webcamVideo.srcObject = screenStream; // Show screen share in local video box
-        isScreenSharing = true;
-        screenShareIcon.classList.add('active');
-        screenShareIcon.classList.remove('fa-desktop');
-        screenShareIcon.classList.add('fa-stop-circle'); // Change icon to indicate sharing is active
-    } catch (error) {
-        console.error("Error starting screen share:", error);
-        alert("Screen sharing failed: " + error.message); // Show an alert with the error message
-    }
-}
-
-function stopScreenShare() {
-    isScreenSharing = false;
-    screenShareIcon.classList.remove('active');
-    screenShareIcon.classList.remove('fa-stop-circle');
-    screenShareIcon.classList.add('fa-desktop'); // Change icon back to desktop
-    webcamVideo.srcObject = localStream; // Show the original local video stream
 }
 
 // Create an offer
