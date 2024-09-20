@@ -70,19 +70,19 @@ videoIcon.onclick = async () => {
 
 // Toggle mic icon
 micIcon.onclick = () => {
-  micIcon.classList.toggle('active'); // Toggles the active class
-  const audioTracks = localStream.getAudioTracks();
-  if (micIcon.classList.contains('active')) {
-    micIcon.classList.remove('fa-microphone'); // Change to muted icon
-    micIcon.classList.add('fa-microphone-slash');
-    // Mute audio
-    audioTracks.forEach(track => track.enabled = false);
-  } else {
-    micIcon.classList.remove('fa-microphone-slash'); // Change back to unmuted icon
-    micIcon.classList.add('fa-microphone');
-    // Unmute audio
-    audioTracks.forEach(track => track.enabled = true);
-  }
+    micIcon.classList.toggle('active'); // Toggles the active class
+    const audioTracks = localStream.getAudioTracks();
+    if (micIcon.classList.contains('active')) {
+        micIcon.classList.remove('fa-microphone'); // Change to muted icon
+        micIcon.classList.add('fa-microphone-slash');
+        // Mute audio
+        audioTracks.forEach(track => track.enabled = false);
+    } else {
+        micIcon.classList.remove('fa-microphone-slash'); // Change back to unmuted icon
+        micIcon.classList.add('fa-microphone');
+        // Unmute audio
+        audioTracks.forEach(track => track.enabled = true);
+    }
 };
   
 // 2. Create an offer
