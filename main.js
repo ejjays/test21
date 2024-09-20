@@ -70,7 +70,12 @@ videoIcon.onclick = async () => {
 
 // Toggle mic icon
 micIcon.onclick = () => {
-    const audioTracks = localStream ? localStream.getAudioTracks() : [];
+    if (!localStream) {
+        console.error("Local stream is not initialized. Make sure to start the stream first.");
+        return; // Exit if localStream is not initialized
+    }
+
+    const audioTracks = localStream.getAudioTracks();
     micIcon.classList.toggle('active'); // Toggles the active class
     if (micIcon.classList.contains('active')) {
         micIcon.classList.remove('fa-microphone'); // Change to muted icon
