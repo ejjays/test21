@@ -26,12 +26,10 @@ const servers = {
   iceCandidatePoolSize: 10,
 };
 
-// Global State
 const pc = new RTCPeerConnection(servers);
 let localStream = null;
 let remoteStream = null;
 
-// HTML elements
 const webcamVideo = document.getElementById('webcamVideo');
 const callButton = document.getElementById('callButton');
 const callInput = document.getElementById('callInput');
@@ -39,82 +37,63 @@ const answerButton = document.getElementById('answerButton');
 const remoteVideo = document.getElementById('remoteVideo');
 const hangupButton = document.getElementById('hangupButton');
 const videoIcon = document.getElementById('video-icon');
-const micIcon = document.getElementById('mic-icon'); // Add mic icon reference
+const micIcon = document.getElementById('mic-icon');
 
-// Function to adjust video sizes
+let isVideoOn = false;
+
 function adjustVideoSizes() {
-    const localVideoBox = document.querySelector('#webcamVideo').parentElement; // Get the parent of the local video
-    const remoteVideoBox = document.querySelector('#remoteVideo').parentElement; // Get the parent of the remote video
+    const localVideoBox = document.querySelector('#localVideoBox');
+    const remoteVideoBox = document.querySelector('#remoteVideoBox');
 
     if (remoteStream.getTracks().length > 0) {
-        // If remote stream is active, show both boxes and set to normal size
         localVideoBox.classList.remove('full-size');
         remoteVideoBox.classList.remove('hidden');
         remoteVideoBox.classList.remove('remote-size');
     } else {
-        // If only local stream is active, hide the remote video box and make local video box full size
         localVideoBox.classList.add('full-size');
         remoteVideoBox.classList.add('hidden');
-        remoteVideoBox.classList.add('remote-size'); // Add remote-size class to hide width
+        remoteVideoBox.classList.add('remote-size');
     }
 }
 
-// 1. Setup media sources
 videoIcon.onclick = async () => {
-    if (videoIcon.classList.contains('active')) {
-        return; // Camera is already active
+    if (isVideoOn) {
+        localStream.getVideoTracks().forEach(track => track.stop());
+        webcamVideo.srcObject = null;
+        videoIcon.classList.remove('active');
+        videoIcon.classList.remove('fa-video');
+        videoIcon.classList.add('fa-video-slash');
+        isVideoOn = false; // Video is off
+    } else {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+        webcamVideo.srcObject = localStream;
+        videoIcon.classList.add('active');
+        videoIcon.classList.remove('fa-video-slash');
+        videoIcon.classList.add('fa-video');
+        isVideoOn = true; // Video is on
     }
-  
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    remoteStream = new MediaStream();
-
-    localStream.getTracks().forEach((track) => {
-        pc.addTrack(track, localStream);
-    });
-
-    // Initialize the mic icon to be muted
-    micIcon.classList.add('fa-microphone-slash'); // Start in muted state
-    micIcon.classList.remove('fa-microphone');
-
-    pc.ontrack = (event) => {
-        event.streams[0].getTracks().forEach((track) => {
-            remoteStream.addTrack(track);
-            adjustVideoSizes(); // Adjust sizes when a track is added
-        });
-    };
-
-    webcamVideo.srcObject = localStream;
-    remoteVideo.srcObject = remoteStream;
-
-    callButton.disabled = false;
-    answerButton.disabled = false;
-    videoIcon.classList.add('active'); // Mark the video icon as active
-
-    adjustVideoSizes(); // Initial adjustment
+    adjustVideoSizes(); // Adjust sizes after toggling video
 };
 
-// Toggle mic icon
 micIcon.onclick = () => {
     if (!localStream) {
         console.error("Local stream is not initialized. Make sure to start the stream first.");
-        return; // Exit if localStream is not initialized
+        return;
     }
 
     const audioTracks = localStream.getAudioTracks();
-    micIcon.classList.toggle('active'); // Toggles the active class
+    micIcon.classList.toggle('active');
     if (micIcon.classList.contains('active')) {
-        micIcon.classList.remove('fa-microphone'); // Change to muted icon
+        micIcon.classList.remove('fa-microphone');
         micIcon.classList.add('fa-microphone-slash');
-        // Mute audio
         audioTracks.forEach(track => track.enabled = false);
     } else {
-        micIcon.classList.remove('fa-microphone-slash'); // Change back to unmuted icon
+        micIcon.classList.remove('fa-microphone-slash');
         micIcon.classList.add('fa-microphone');
-        // Unmute audio
         audioTracks.forEach(track => track.enabled = true);
     }
-}; 
-
+};
 // 2. Create an offer
 callButton.onclick = async () => {
     const callDoc = firestore.collection('calls').doc();
