@@ -45,7 +45,6 @@ function adjustVideoSizes() {
     const localVideoBox = document.querySelector('#localVideoBox');
     const remoteVideoBox = document.querySelector('#remoteVideoBox');
 
-    // Check if remote stream is active
     if (remoteStream && remoteStream.getTracks().length > 0) {
         localVideoBox.classList.remove('full-size');
         remoteVideoBox.classList.remove('hidden');
@@ -61,25 +60,23 @@ videoIcon.onclick = async () => {
     const localVideo = document.getElementById('webcamVideo');
     if (isVideoOn) {
         localStream.getVideoTracks().forEach(track => track.stop());
-        localVideo.classList.add('hidden'); // Apply hidden class for transition
+        localVideo.classList.add('hidden');
         videoIcon.classList.remove('active');
         videoIcon.classList.remove('fa-video');
         videoIcon.classList.add('fa-video-slash');
-        isVideoOn = false; // Video is off
+        isVideoOn = false;
     } else {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
         localVideo.srcObject = localStream;
-        localVideo.classList.remove('hidden'); // Remove hidden class for transition
+        localVideo.classList.remove('hidden');
         videoIcon.classList.add('active');
         videoIcon.classList.remove('fa-video-slash');
         videoIcon.classList.add('fa-video');
-        isVideoOn = true; // Video is on
-
-        // Enable the call button once the local stream is active
-        callButton.disabled = false;
+        isVideoOn = true;
+        callButton.disabled = false; // Enable the call button when video is on
     }
-    adjustVideoSizes(); // Adjust sizes after toggling video
+    adjustVideoSizes();
 };
 
 micIcon.onclick = () => {
@@ -128,7 +125,7 @@ callButton.onclick = async () => {
         if (!pc.currentRemoteDescription && data?.answer) {
             const answerDescription = new RTCSessionDescription(data.answer);
             pc.setRemoteDescription(answerDescription);
-            adjustVideoSizes(); // Adjust sizes after setting remote description
+            adjustVideoSizes();
         }
     });
 
@@ -156,6 +153,10 @@ answerButton.onclick = async () => {
     };
 
     const callData = (await callDoc.get()).data();
+    if (!callData) {
+        console.error("No call data found for this Call ID.");
+        return; // Exit if no call data
+    }
 
     const offerDescription = callData.offer;
     await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
@@ -179,7 +180,7 @@ answerButton.onclick = async () => {
         });
     });
 
-    adjustVideoSizes(); // Adjust sizes after answering the call
+    adjustVideoSizes();
 };
 
 // Handle remote track addition
@@ -189,5 +190,5 @@ pc.ontrack = (event) => {
     }
     remoteStream.addTrack(event.track);
     document.getElementById('remoteVideo').srcObject = remoteStream;
-    adjustVideoSizes(); // Adjust sizes when a remote track is added
+    adjustVideoSizes();
 };
