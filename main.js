@@ -41,19 +41,20 @@ const hangupButton = document.getElementById('hangupButton');
 const videoIcon = document.getElementById('video-icon');
 const micIcon = document.getElementById('mic-icon'); // Add mic icon reference
 
-// New function to adjust video sizes
+// Function to adjust video sizes
 function adjustVideoSizes() {
     const localVideoBox = document.querySelector('#webcamVideo').parentElement; // Get the parent of the local video
     const remoteVideoBox = document.querySelector('#remoteVideo').parentElement; // Get the parent of the remote video
 
     if (remoteStream.getTracks().length > 0) {
-        // If remote stream is active, set both boxes to normal size
+        // If remote stream is active, show both boxes and set to normal size
         localVideoBox.classList.remove('full-size');
+        remoteVideoBox.classList.remove('hidden');
         remoteVideoBox.classList.remove('full-size');
     } else {
-        // If only local stream is active, make the local video box full size
+        // If only local stream is active, hide the remote video box and make local video box full size
         localVideoBox.classList.add('full-size');
-        remoteVideoBox.classList.remove('full-size');
+        remoteVideoBox.classList.add('hidden');
     }
 }
 
@@ -115,80 +116,81 @@ micIcon.onclick = () => {
 
 // 2. Create an offer
 callButton.onclick = async () => {
-  const callDoc = firestore.collection('calls').doc();
-  const offerCandidates = callDoc.collection('offerCandidates');
-  const answerCandidates = callDoc.collection('answerCandidates');
+    const callDoc = firestore.collection('calls').doc();
+    const offerCandidates = callDoc.collection('offerCandidates');
+    const answerCandidates = callDoc.collection('answerCandidates');
 
-  callInput.value = callDoc.id; // Set the call ID for the input field
+    callInput.value = callDoc.id; // Set the call ID for the input field
 
-  pc.onicecandidate = (event) => {
-    event.candidate && offerCandidates.add(event.candidate.toJSON());
-  };
+    pc.onicecandidate = (event) => {
+        event.candidate && offerCandidates.add(event.candidate.toJSON());
+    };
 
-  const offerDescription = await pc.createOffer();
-  await pc.setLocalDescription(offerDescription);
+    const offerDescription = await pc.createOffer();
+    await pc.setLocalDescription(offerDescription);
 
-  const offer = {
-    sdp: offerDescription.sdp,
-    type: offerDescription.type,
-  };
+    const offer = {
+        sdp: offerDescription.sdp,
+        type: offerDescription.type,
+    };
 
-  await callDoc.set({ offer });
+    await callDoc.set({ offer });
 
-  callDoc.onSnapshot((snapshot) => {
-    const data = snapshot.data();
-    if (!pc.currentRemoteDescription && data?.answer) {
-      const answerDescription = new RTCSessionDescription(data.answer);
-      pc.setRemoteDescription(answerDescription);
-    }
-  });
-
-  answerCandidates.onSnapshot((snapshot) => {
-    snapshot.docChanges().forEach((change) => {
-      if (change.type === 'added') {
-        const candidate = new RTCIceCandidate(change.doc.data());
-        pc.addIceCandidate(candidate);
-      }
+    callDoc.onSnapshot((snapshot) => {
+        const data = snapshot.data();
+        if (!pc.currentRemoteDescription && data?.answer) {
+            const answerDescription = new RTCSessionDescription(data.answer);
+            pc.setRemoteDescription(answerDescription);
+            adjustVideoSizes(); // Adjust sizes after setting remote description
+        }
     });
-  });
 
-  hangupButton.disabled = false;
+    answerCandidates.onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === 'added') {
+                const candidate = new RTCIceCandidate(change.doc.data());
+                pc.addIceCandidate(candidate);
+            }
+        });
+    });
+
+    hangupButton.disabled = false;
 };
 
 // 3. Answer the call with the unique ID
 answerButton.onclick = async () => {
-  const callId = callInput.value; // Get the call ID from input
-  const callDoc = firestore.collection('calls').doc(callId);
-  const answerCandidates = callDoc.collection('answerCandidates');
-  const offerCandidates = callDoc.collection('offerCandidates');
+    const callId = callInput.value; // Get the call ID from input
+    const callDoc = firestore.collection('calls').doc(callId);
+    const answerCandidates = callDoc.collection('answerCandidates');
+    const offerCandidates = callDoc.collection('offerCandidates');
 
-  pc.onicecandidate = (event) => {
-    event.candidate && answerCandidates.add(event.candidate.toJSON());
-  };
+    pc.onicecandidate = (event) => {
+        event.candidate && answerCandidates.add(event.candidate.toJSON());
+    };
 
-  const callData = (await callDoc.get()).data();
+    const callData = (await callDoc.get()).data();
 
-  const offerDescription = callData.offer;
-  await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
+    const offerDescription = callData.offer;
+    await pc.setRemoteDescription(new RTCSessionDescription(offerDescription));
 
-  const answerDescription = await pc.createAnswer();
-  await pc.setLocalDescription(answerDescription);
+    const answerDescription = await pc.createAnswer();
+    await pc.setLocalDescription(answerDescription);
 
-  const answer = {
-    type: answerDescription.type,
-    sdp: answerDescription.sdp,
-  };
+    const answer = {
+        type: answerDescription.type,
+        sdp: answerDescription.sdp,
+    };
 
-  await callDoc.update({ answer });
+    await callDoc.update({ answer });
 
-  offerCandidates.onSnapshot((snapshot) => {
-    snapshot.docChanges().forEach((change) => {
-      if (change.type === 'added') {
-        let data = change.doc.data();
-        pc.addIceCandidate(new RTCIceCandidate(data));
-      }
+    offerCandidates.onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === 'added') {
+                let data = change.doc.data();
+                pc.addIceCandidate(new RTCIceCandidate(data));
+            }
+        });
     });
-  });
 
-  adjustVideoSizes(); // Adjust sizes after answering the call
+    adjustVideoSizes(); // Adjust sizes after answering the call
 };
