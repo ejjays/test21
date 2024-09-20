@@ -53,8 +53,16 @@ const requestPermissions = async () => {
         videoIcon.disabled = false;
 
     } catch (error) {
-        console.error("Error accessing media devices.", error);
-        alert("Could not access camera and microphone. Please check your permissions.");
+        if (error.name === 'NotAllowedError') {
+            alert("Permissions for camera and microphone were denied. Please check your browser settings.");
+        } else if (error.name === 'NotFoundError') {
+            alert("No camera and/or microphone found. Please connect a device.");
+        } else if (error.name === 'DevicesNotFoundError') {
+            alert("No media devices found. Ensure your devices are connected and not being used by another application.");
+        } else {
+            console.error("Error accessing media devices.", error);
+            alert("Could not access camera and microphone. Please check your permissions.");
+        }
     }
 };
 
