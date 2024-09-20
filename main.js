@@ -263,5 +263,5 @@ pc.ontrack = (event) => {
 
     remoteStream.addTrack(event.track);
     document.getElementById('remoteVideo').srcObject = remoteStream;
-    adjustVideoSizes();
+    adjustVideoSizes(); // Ensure UI is updated immediately
 };
