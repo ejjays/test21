@@ -42,25 +42,30 @@ const hangupButton = document.getElementById('hangupButton');
 
 // Setup media sources
 webcamButton.onclick = async () => {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    remoteStream = new MediaStream();
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        remoteStream = new MediaStream();
 
-    localStream.getTracks().forEach((track) => {
-        pc.addTrack(track, localStream);
-    });
-
-    pc.ontrack = (event) => {
-        event.streams[0].getTracks().forEach((track) => {
-            remoteStream.addTrack(track);
+        localStream.getTracks().forEach((track) => {
+            pc.addTrack(track, localStream);
         });
-    };
 
-    webcamVideo.srcObject = localStream;
-    remoteVideo.srcObject = remoteStream;
+        pc.ontrack = (event) => {
+            event.streams[0].getTracks().forEach((track) => {
+                remoteStream.addTrack(track);
+            });
+        };
 
-    callButton.disabled = false;
-    answerButton.disabled = false;
-    webcamButton.disabled = true;
+        webcamVideo.srcObject = localStream;
+        remoteVideo.srcObject = remoteStream;
+
+        callButton.disabled = false;
+        answerButton.disabled = false;
+        webcamButton.disabled = true;
+    } catch (error) {
+        console.error("Error accessing media devices.", error);
+        alert("Could not access camera and microphone. Please check your permissions.");
+    }
 };
 
 // Create an offer
