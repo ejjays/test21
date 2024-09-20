@@ -39,6 +39,7 @@ const answerButton = document.getElementById('answerButton');
 const remoteVideo = document.getElementById('remoteVideo');
 const hangupButton = document.getElementById('hangupButton');
 const videoIcon = document.getElementById('video-icon');
+const micIcon = document.getElementById('mic-icon'); // Add mic icon reference
 
 // 1. Setup media sources
 videoIcon.onclick = async () => {
@@ -65,6 +66,23 @@ videoIcon.onclick = async () => {
   callButton.disabled = false;
   answerButton.disabled = false;
   videoIcon.classList.add('active'); // Mark the video icon as active
+};
+
+// Toggle mic icon
+micIcon.onclick = () => {
+  micIcon.classList.toggle('active'); // Toggles the active class
+  const audioTracks = localStream.getAudioTracks();
+  if (micIcon.classList.contains('active')) {
+    micIcon.classList.remove('fa-microphone'); // Change to muted icon
+    micIcon.classList.add('fa-microphone-slash');
+    // Mute audio
+    audioTracks.forEach(track => track.enabled = false);
+  } else {
+    micIcon.classList.remove('fa-microphone-slash'); // Change back to unmuted icon
+    micIcon.classList.add('fa-microphone');
+    // Unmute audio
+    audioTracks.forEach(track => track.enabled = true);
+  }
 };
 
 // 2. Create an offer
