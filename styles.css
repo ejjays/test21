@@ -24,7 +24,7 @@ body {
 
 .video-box {
     background-color: #444;
-    width: 80%; /* Default width */
+    width: 80%;
     max-width: 600px;
     height: 45%;
     margin: 10px 0;
@@ -32,20 +32,23 @@ body {
     border: 2px solid #666;
     border-radius: 5px;
     overflow: hidden;
-    transition: height 0.3s ease, width 0.3s ease; /* Smooth transition for height and width change */
+    transition: height 0.3s ease, width 0.3s ease;
+    background-image: url('path_to_default_profile_icon.png'); /* Placeholder for profile icon */
+    background-size: cover;
+    background-position: center;
 }
 
 .video-box.hidden {
-    display: none; /* Hide the remote video box when there is no participant */
+    display: none;
 }
 
 .video-box.full-size {
-    height: 90%; /* Full height when only one participant is present */
-    width: 105%; /* Wider width when local stream is alone */
+    height: 92%;
+    width: 110%;
 }
 
 .video-box.remote-size {
-    width: 0; /* Hide width for the remote stream */
+    width: 0;
 }
 
 .username {
@@ -80,17 +83,11 @@ video {
     cursor: pointer;
 }
 
-.controls span {
-    color: white; /* Change the text color */
-    margin-left: 5px; /* Add some space between the icon and the label */
-    font-size: 16px; /* Adjust the font size as needed */
-}
-
 .active {
     color: #f00;
 }
 
-.settings-panel, .chat-panel {
+.settings-panel {
     position: fixed;
     top: 0;
     right: -300px;
@@ -103,7 +100,7 @@ video {
     color: white;
 }
 
-.settings-panel.open, .chat-panel.open {
+.settings-panel.open {
     right: 0;
 }
 
@@ -116,13 +113,4 @@ video {
     border-radius: 5px;
     margin-bottom: 20px;
     font-size: 16px;
-}
-
-#chatMessages {
-    max-height: 300px;
-    overflow-y: auto;
-    margin-bottom: 10px;
-    background-color: #333;
-    padding: 10px;
-    border-radius: 5px;
 }
