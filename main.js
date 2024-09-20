@@ -132,13 +132,14 @@ async function startScreenShare() {
             localStream.getVideoTracks().forEach(videoTrack => pc.removeTrack(pc.getSenders().find(s => s.track === videoTrack)));
             pc.addTrack(track, screenStream);
         });
-        webcamVideo.srcObject = screenStream; 
+        webcamVideo.srcObject = screenStream; // Show screen share in local video box
         isScreenSharing = true;
         screenShareIcon.classList.add('active');
         screenShareIcon.classList.remove('fa-desktop');
-        screenShareIcon.classList.add('fa-stop-circle');
+        screenShareIcon.classList.add('fa-stop-circle'); // Change icon to indicate sharing is active
     } catch (error) {
         console.error("Error starting screen share:", error);
+        alert("Screen sharing failed: " + error.message); // Show an alert with the error message
     }
 }
 
@@ -146,8 +147,8 @@ function stopScreenShare() {
     isScreenSharing = false;
     screenShareIcon.classList.remove('active');
     screenShareIcon.classList.remove('fa-stop-circle');
-    screenShareIcon.classList.add('fa-desktop');
-    webcamVideo.srcObject = localStream; 
+    screenShareIcon.classList.add('fa-desktop'); // Change icon back to desktop
+    webcamVideo.srcObject = localStream; // Show the original local video stream
 }
 
 // Create an offer
@@ -261,7 +262,7 @@ hangupButton.onclick = async () => {
     await callDoc.update({ remoteUserDisconnected: true }); 
 
     remoteVideo.srcObject = null; 
-    document.getElementById('localVideoBox').classList.add('full-size');
+    document.getElementById('localVideoBox').classList.add('full-size'); 
     document.getElementById('remoteVideoBox').classList.add('hidden'); 
 
     hangupButton.disabled = true;
