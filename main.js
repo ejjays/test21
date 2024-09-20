@@ -43,29 +43,33 @@ const micIcon = document.getElementById('mic-icon'); // Add mic icon reference
 
 // 1. Setup media sources
 videoIcon.onclick = async () => {
-  if (videoIcon.classList.contains('active')) {
-    return; // Camera is already active
-  }
+    if (videoIcon.classList.contains('active')) {
+        return; // Camera is already active
+    }
   
-  localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  remoteStream = new MediaStream();
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    remoteStream = new MediaStream();
 
-  localStream.getTracks().forEach((track) => {
-    pc.addTrack(track, localStream);
-  });
-
-  pc.ontrack = (event) => {
-    event.streams[0].getTracks().forEach((track) => {
-      remoteStream.addTrack(track);
+    localStream.getTracks().forEach((track) => {
+        pc.addTrack(track, localStream);
     });
-  };
 
-  webcamVideo.srcObject = localStream;
-  remoteVideo.srcObject = remoteStream;
+    // Initialize the mic icon to be muted
+    micIcon.classList.add('fa-microphone-slash'); // Start in muted state
+    micIcon.classList.remove('fa-microphone');
 
-  callButton.disabled = false;
-  answerButton.disabled = false;
-  videoIcon.classList.add('active'); // Mark the video icon as active
+    pc.ontrack = (event) => {
+        event.streams[0].getTracks().forEach((track) => {
+            remoteStream.addTrack(track);
+        });
+    };
+
+    webcamVideo.srcObject = localStream;
+    remoteVideo.srcObject = remoteStream;
+
+    callButton.disabled = false;
+    answerButton.disabled = false;
+    videoIcon.classList.add('active'); // Mark the video icon as active
 };
 
 // Toggle mic icon
