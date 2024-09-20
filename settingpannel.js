@@ -43,4 +43,4 @@ videoIcon.addEventListener('click', () => {
         videoIcon.classList.remove('fa-video-slash'); // Change back to video on icon
         videoIcon.classList.add('fa-video');
     }
-});
+}); 
